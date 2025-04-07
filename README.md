@@ -30,28 +30,28 @@ To get started with the project:
 
 + Clone the repository:
 
-` git clone https://github.com/karamk2k/Kchat.git `
+``` git clone https://github.com/karamk2k/Kchat.git ```
 
 + Navigate to the project directory:
 
-` cd Kchat `
+``` cd Kchat ```
 + Install dependencies: 
 
-` composer install`  `npm install `
+``` composer install```  ```npm install ```
 
 + Set up your .env file: 
 
  - Copy the .env.example file to .env: 
- ` cp .env.example .env `
+ ``` cp .env.example .env ```
 
 + Generate the application key:
-` php artisan key:generate `
+``` php artisan key:generate ```
 
 + Run the migrations: 
- ` php artisan migrate `
+ ``` php artisan migrate ```
 
 + Start the development server:
-    ` composer run dev `
+    ``` composer run dev ```
 
 + For real-time functionality, make sure to set up and configure Pusher or Laravel Echo.
 
