@@ -6,7 +6,7 @@
 
         <title>Laravel</title>
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="userid" content="{{ auth()->user()->id }}">
+       
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -35,6 +35,12 @@
                             Dashboard
                         </a>
 
+                        <a 
+                        href="{{route('chat.index')}}"
+                        class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
+                        >
+                            Chat
+                        </a>
                       <form action="{{ route('logout') }}" method="POST">
 
                         @csrf

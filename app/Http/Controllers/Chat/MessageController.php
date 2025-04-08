@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Chat;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+
 use App\Models\Message;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
@@ -12,8 +12,11 @@ use Illuminate\Support\Facades\Log;
 use App\Traits\ApiResponse;
 use App\Http\Resources\MessageResource;
 use App\Http\Resources\ConversationResource;
+use Illuminate\Http\Request;
 use App\Http\Requests\MessageSendRequest;
+use App\Http\Requests\FindMessageRequest;
 use App\Events\MessageSent;
+
 
 class MessageController extends Controller
 {
@@ -63,7 +66,23 @@ class MessageController extends Controller
     }
 
 
-    
+        public function findMessage(FindMessageRequest $request){
+            try {
+                $res=Message::Search($request->search,$request->user_id)->get();
+                if($res->isEmpty()==false){
+                    return $this->successResponse(MessageResource::collection($res),"Message",200);
+                }
+                else{
+                    return $this->successResponse(null,"No Message Found",200);
+                }
+
+            }
+            catch (\Exception $e) {
+                \Log::error($e->getMessage());
+                return $this->errorResponse($e->getMessage());
+            }
+         
+        }
 
 }
 
