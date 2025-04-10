@@ -28,8 +28,11 @@
         <!-- Chat Messages -->
         <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto space-y-4">
             <!-- Messages will be loaded here -->
+            
         </div>
-
+        <div id="typingIndicator" class="text-sm text-gray-500 italic mt-2 hidden  self-start">
+            Typing...
+        </div>
         <!-- Chat Input -->
         <form class="p-4 border-t bg-gray-100 flex items-center hidden" id="chatInputContainer" data-user-id="">
             @csrf
@@ -41,14 +44,20 @@
 
 @push('script')
 <script type="module">
+      var authUserId = {{ auth()->id() }};
+
+    var convid=sessionStorage.getItem('convid');
+ 
     $(document).ready(function() {
+
         if(sessionStorage.getItem('activeChat')) {
             var userId = sessionStorage.getItem('activeChat');
             var userName = sessionStorage.getItem('user_name');
+         
             openChat(userId, userName);
         }
 
-        var authUserId = {{ auth()->id() }};
+      
         
         $('.userlist').click(function() {
             sessionStorage.setItem('activeChat', $(this).data('user-id'));
@@ -63,13 +72,16 @@
             $('#searchInput').toggleClass('hidden');
         });
 
+    
+
         function openChat(userId, userName) {
             $('.convTitle').text(userName);
             $('#messagesContainer').html('');
             $('#chatInputContainer').removeClass('hidden').attr('data-user-id', userId);
+            $('#messageInput').val('');
             $('#searchIcon').removeClass('hidden');
             $('[id^="message-"]').removeClass('bg-yellow-300');
-
+       
             $.ajax({
                 url: `getMessages/${userId}`,
                 headers: {
@@ -77,6 +89,11 @@
                 },
                 method: 'GET',
                 success: function(response) {
+                    console.log(response);
+                    let Convers=response.data.id;
+                    sessionStorage.setItem('convid', Convers);
+                    console.log(convid);
+                    subscribed(Convers);
                     if (response.data) {
                         var messages = response.data.messages;
                         if (response.data.name) {
@@ -192,7 +209,63 @@
             });
         });
 
-        window.Echo.private('MessageForUser.' + authUserId)
+        let wasTyping = false;
+
+$('#messageInput').on('input', function() {
+    let user_id = $('#chatInputContainer').data('user-id');
+    let message = $(this).val();
+
+    if (convid) {
+        if (message.length > 0 && !wasTyping) {
+            
+            Echo.private('ChatForUser.' + convid)
+                .whisper('typing', {
+                    user: authUserId,
+                    message: "Typing..."
+                });
+            wasTyping = true;
+        } else if (message.length === 0 && wasTyping) {
+            
+            Echo.private('ChatForUser.' + convid)
+                .whisper('stopTyping', {
+                    user: authUserId
+                });
+            wasTyping = false;
+        }
+    }
+});
+
+
+function subscribed(Conv) {
+    if (convid && Conv !== convid) {
+        Echo.leaveChannel(`ChatForUser.${convid}`);
+        console.log(`Unsubscribed from ChatForUser.${convid}`);
+    }
+
+    Echo.private(`ChatForUser.${Conv}`)
+        .listenForWhisper('typing', (e) => {
+            if (e.user !== authUserId) {
+                console.log(e.message);
+                $('#typingIndicator').removeClass('hidden');
+            }
+        })
+        .listenForWhisper('stopTyping', (e) => {
+            if (e.user !== authUserId) {
+                $('#typingIndicator').addClass('hidden');
+            }
+        })
+        .subscribed(function() {
+            console.log('Subscribed to ChatForUser.' + Conv);
+            convid = Conv;
+        })
+        .error(function(err) {
+            console.log('Error subscribing to the new channel', err);
+        });
+}
+
+      
+
+        window.Echo.private('MessageForUser.' + {{ auth()->user()->id }})
             .listen('.MessageSent', function(e) {
                 if (e.message) {
                     playSound();
@@ -208,7 +281,7 @@
                                 <div class="${bubbleClass} p-2 rounded-lg max-w-xs">${message.message}</div>
                             </div>
                         `);
-
+                        $('#typingIndicator').addClass('hidden');
                         $('#messagesContainer').scrollTop($('#messagesContainer')[0].scrollHeight);
                     } else {
                         notyf.open({

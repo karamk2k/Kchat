@@ -19,7 +19,7 @@ class Conversation extends Model
     ];
 //Relations
 
-    public function Users() {
+    public function users() {
         return $this->belongsToMany(User::class, 'conversation_room');
     }
 
