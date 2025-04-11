@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('chat-with', function (User $user,  $user_id) {
+            $target = User::find($user_id);
+            return !$user->hasBlocked($target) && !$target->hasBlocked($user);
+        });
+        
     }
 }

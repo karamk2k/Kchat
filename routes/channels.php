@@ -50,4 +50,15 @@ Broadcast::channel('ChatForUser.{id}', function ($user, $id) {
     }
 });
 
+    Broadcast::channel('blockUser.{id}', function ($user, $id) {
+        Log::alert("Checking access for user: {$user->id} to blockUser.{$id}");
+        return (int) $user->id === (int) $id;
+    });
+
+    Broadcast::channel('UnBlockUser.{id}', function ($user, $id) {
+        Log::alert("Checking access for user: {$user->id} to UnBlockUser.{$id}");
+        return (int) $user->id === (int) $id;
+    });
+
+
 

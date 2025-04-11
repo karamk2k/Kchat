@@ -20,11 +20,13 @@
     <div class="w-3/4 bg-white flex flex-col">
         <!-- Chat Header -->
         <div class="p-4 border-b bg-gray-200 flex items-center justify-between">
+
             <h2 class="text-lg font-semibold convTitle">Chat Room</h2>
-            <img width="30" height="30" src="https://img.icons8.com/ios/50/search--v1.png" alt="search--v1" class="cursor-pointer hidden" id="searchIcon" />
+            <img width="30" height="30" src="https://img.icons8.com/glyph-neue/64/unfriend-female.png" alt="block-user" class="cursor-pointer" id="blockUserIcon"/>
+
+            <img width="30" height="30" src="https://img.icons8.com/ios/50/search--v1.png" alt="search--v1" class="cursor-pointer " id="searchIcon" />
             <input class="hidden" type="text" placeholder="Search..." id="searchInput" />
         </div>
-
         <!-- Chat Messages -->
         <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto space-y-4">
             <!-- Messages will be loaded here -->
@@ -39,6 +41,9 @@
             <input id="messageInput" type="text" class="w-full p-2 border rounded" placeholder="Type a message...">
             <button class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">Send</button>
         </form>
+        <div id="cantSendMessageNotice" class="text-red-500 text-sm italic mt-2 hidden">
+            You can't send a message to this user.
+        </div>
     </div>
 </div>
 
@@ -79,7 +84,7 @@
             $('#messagesContainer').html('');
             $('#chatInputContainer').removeClass('hidden').attr('data-user-id', userId);
             $('#messageInput').val('');
-            $('#searchIcon').removeClass('hidden');
+           
             $('[id^="message-"]').removeClass('bg-yellow-300');
        
             $.ajax({
@@ -91,6 +96,9 @@
                 success: function(response) {
                     console.log(response);
                     let Convers=response.data.id;
+                    let can_send=response.data.can_send_message;
+                    can_send_message(can_send);
+
                     sessionStorage.setItem('convid', Convers);
                     console.log(convid);
                     subscribed(Convers);
@@ -124,6 +132,42 @@
                 }
             });
         }
+
+
+        function can_send_message(can_send){
+            if(can_send){
+                $('#chatInputContainer').removeClass('hidden');
+                $('#cantSendMessageNotice').addClass('hidden');
+                $('#blockUserIcon').removeClass('hidden');
+            }
+            else{
+                $('#chatInputContainer').addClass('hidden');
+                $('#cantSendMessageNotice').removeClass('hidden');
+                $('#blockUserIcon').addClass('hidden');
+
+            }
+        }
+
+        $('#blockUserIcon').click(function() {
+          let id=  $('#chatInputContainer').data('user-id');
+          console.log(id);
+          $.ajax({
+
+                url: `/blockUser/${id}`,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                success: function(response) {
+                    console.log(response);
+                    can_send_message(false);
+                    notyf.success('User blocked successfully');
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
 
         let debounceTimer;
         $('#searchInput').on('input', function() {
@@ -263,9 +307,32 @@ function subscribed(Conv) {
         });
 }
 
-      
+        Echo.private('blockUser.{{ auth()->user()->id }}')
+                    .listen('.BlockUser', function(e) {
+                        console.table(e);
+                        if (e.user) { 
+                           
+                            if(e.id  === $('#chatInputContainer').data('user-id')){
+                               
+                             can_send_message(false);
+                                
+                            } 
+                        }
+                }).subscribed(function() {
+                    console.log('Subscribed to blockUser.' + {{ auth()->user()->id }});
+                })
+                
 
-        window.Echo.private('MessageForUser.' + {{ auth()->user()->id }})
+            Echo.private('UnBlockUser.{{ auth()->user()->id }}')
+                    .listen('.UnBlockUser', function(e) {
+                        if(e){
+                            if(e.id  === $('#chatInputContainer').data('user-id')){
+                                can_send_message(true);
+                            }
+                        }
+            })
+
+        Echo.private('MessageForUser.' + {{ auth()->user()->id }})
             .listen('.MessageSent', function(e) {
                 if (e.message) {
                     playSound();
@@ -291,6 +358,8 @@ function subscribed(Conv) {
                     }
                 }
             });
+
+       
     });
 </script>
 @endpush

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Traits\ApiResponse;
@@ -15,6 +16,7 @@ use App\Http\Resources\ConversationResource;
 use Illuminate\Http\Request;
 use App\Http\Requests\MessageSendRequest;
 use App\Http\Requests\FindMessageRequest;
+use App\Events\BlockUser;
 use App\Events\MessageSent;
 
 
@@ -24,12 +26,17 @@ class MessageController extends Controller
     public function getMessages($id )
     {
         try {
+
             $conversation = Conversation::ConversationBetween($id)->first();
             if(!$conversation){
                 return $this->successResponse(null,'no conversation yet',);
             }
+
            
-             
+
+            if(Gate::denies('chat-with', $id)){
+                return $this->successResponse(new ConversationResource($conversation,false),"Conversation",200);
+            }
              return $this->successResponse(new ConversationResource($conversation),"Conversation",200);
         }
         catch (\Exception $e) {
@@ -47,8 +54,8 @@ class MessageController extends Controller
                 $conversation = Conversation::create([
                     'type' => 'private',  
                 ]);
-                $conversation->Users()->attach(Auth::id());
-                $conversation->Users()->attach($id);
+                $conversation->users()->attach(Auth::id());
+                $conversation->users()->attach($id);
             }
             $message = Message::create([
                 'conversation_id' => $conversation->id,
@@ -84,6 +91,8 @@ class MessageController extends Controller
          
         }
 
+
+      
 }
 
 
