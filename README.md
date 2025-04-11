@@ -72,8 +72,6 @@ To get started with the project:
 
 - Add User Profiles with customizable avatars.
 
-- Implement Push Notifications for mobile devices.
-
 - Support for Dark Mode.
 
 - Improve UI/UX Design for better accessibility.
@@ -82,9 +80,9 @@ To get started with the project:
 
 - Add End-to-End Encryption for message security.
 
-- Implement Typing Indicators in real-time.
+- ✅ Implement Typing Indicators in real-time.
 
-- Add User Blocking functionality.
+- ✅ Add User Blocking functionality.
 
 - Expand Notification System (e.g., message read receipts).
 
