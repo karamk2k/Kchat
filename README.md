@@ -72,7 +72,7 @@ To get started with the project:
 
 - Add User Profiles with customizable avatars.
 
-- Support for Dark Mode.
+- ✅ Support for Dark Mode.
 
 - Improve UI/UX Design for better accessibility.
 

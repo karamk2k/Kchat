@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\Chat\MessageController;
 use App\Http\Controllers\Chat\BlockController;
+use App\Http\Controllers\Chat\UsernotificationController;
 
 
 
@@ -17,5 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/findMessage', [MessageController::class, 'findMessage'])->name('message.findMessage');
     Route::get('/blocked_users', [BlockController::class, 'index'])->name('block.index');
     Route::delete('/unblockUser/{user_id}', [BlockController::class, 'unblockUser'])->name('block.unblockUser');
+    Route::get('/UserNotification', [UsernotificationController::class, 'index'])->name('User.UserNotification');
+    Route::put('/markAsRead/{from_user_id}', [UsernotificationController::class, 'markAsRead'])->name('User.markAsRead');
 
 });

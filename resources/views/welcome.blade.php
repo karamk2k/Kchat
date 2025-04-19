@@ -50,7 +50,20 @@
                             Log Out
                         </button>
                       </form>
-                    @else
+                      <div class="relative">
+                      <img width="30" height="30" src="https://img.icons8.com/ios/50/bell.png" class="cursor-pointer dark:hidden " alt="bell" id="bellIconLight"/>
+                      <img width="30" height="30" src="https://img.icons8.com/softteal/24/bell.png" class="cursor-pointer  white:hidden" alt="bell" id="bellIconDark"/>                        
+                      <span id="notificationBadge" 
+                      class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden z-50">
+                </span>
+                      <div id="notificationDropdown" class="absolute right-4 mt-2 w-80 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-lg rounded-lg hidden z-50">
+                        <div id="notificationList" class="p-4 space-y-2 max-h-80 overflow-y-auto">
+                            <p class="text-center text-sm text-gray-500 dark:text-gray-400">No notifications yet</p>
+                        </div>
+                    </div>
+                </div>
+                      
+                      @else
                         <a
                             href="{{ route('login') }}"
                             class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
@@ -79,5 +92,6 @@
         @endif
      
     </body>
- 
+    
+    
 </html>

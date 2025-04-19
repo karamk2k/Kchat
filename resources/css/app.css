@@ -1,7 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 .custom-chat-icon {
     color: #fff !important;
     
 }
+

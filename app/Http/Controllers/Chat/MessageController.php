@@ -16,14 +16,16 @@ use App\Http\Resources\ConversationResource;
 use Illuminate\Http\Request;
 use App\Http\Requests\MessageSendRequest;
 use App\Http\Requests\FindMessageRequest;
+use App\Http\Requests\GetMessagesRequest;
 use App\Events\BlockUser;
 use App\Events\MessageSent;
+use App\Notifications\NewMessageNotification;
 
 
 class MessageController extends Controller
 {
     use ApiResponse;
-    public function getMessages($id )
+    public function getMessages(GetMessagesRequest $request,$id )
     {
         try {
 
@@ -64,6 +66,7 @@ class MessageController extends Controller
             ]);
             $user=User::findorFail($id);
             MessageSent::dispatch($message,$user);
+            $user->notify(new NewMessageNotification($message));
             return $this->successResponse(new MessageResource($message),"Message Sent Successfully",201);
         }
         catch (\Exception $e) {

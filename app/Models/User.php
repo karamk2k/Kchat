@@ -91,4 +91,8 @@ class User extends Authenticatable
             ->where('blocked_id', $userId)
             ->delete();
     }
+
+    public function readNotifications(int $from_user_id){
+        return $this->notifications()->whereNull('read_at')->where('data->from_user_id', $from_user_id)->update(['read_at' => now()]);
+    }
 }
