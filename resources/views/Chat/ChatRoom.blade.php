@@ -89,6 +89,7 @@
                 $('.userlist').click(function() {
                     sessionStorage.setItem('activeChat', $(this).data('user-id'));
                     var userId = $(this).data('user-id');
+                    $('#chatInputContainer').data('user-id', userId);
                     var userName = $(this).text();
                     sessionStorage.setItem('user_name', userName);
                     openChat(userId, userName);
@@ -259,7 +260,7 @@
                     var messageText = $('#messageInput').val();
                     var userId = $('#chatInputContainer').data('user-id');
                     if (!messageText.trim()) return;
-
+                    console.log(userId);
                     $.ajax({
                         url: `sendMessage/${userId}`,
                         method: 'POST',
@@ -391,8 +392,8 @@
 
                 Echo.private('App.Models.User.' + {{ auth()->user()->id }}).notification(function(e) {
                     console.log(e);
-                    renderNotifications([e]);
-
+                    
+                    getNotification();
                 })
 
                 Echo.private('MessageForUser.' + {{ auth()->user()->id }})
@@ -401,8 +402,10 @@
                             playSound();
                             var message = e.message;
                             var user = e.user;
+                            console.log(message);
                             if (message.user_id === authUserId) return;
                             if (message.user_id === $('#chatInputContainer').data('user-id')) {
+                                console.log(message.user_id+"   "+ $('#chatInputContainer').data('user-id'));
                                 var messageClass = (message.user_id === authUserId) ? 'justify-end' :
                                     'justify-start';
                                 var bubbleClass = (message.user_id === authUserId) ? 'bg-blue-500 text-white' :
@@ -467,7 +470,7 @@
                         if (messageCount[userId]) {
                             $(this).append(`
                                         <span class="message-badge bg-red-600 text-white text-xs rounded-full px-2 ml-2" id="messageBadge-${userId}">
-                                            ${messageCount[userId]}
+                                             ${messageCount[userId]}
                                         </span>
                                     `);
                         }
